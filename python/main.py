@@ -1,3 +1,4 @@
+import os
 import sys
 from input_handler import get_data_from_files, get_data_manually
 from schedule import create_schedule, check_constraints, output_schedule
@@ -15,8 +16,7 @@ def print_welcome_message():
       ░    ░  ░        ░   ░  ░         ░  ░ ░               ░ ░ ░       ░  ░  ░   ░  ░   ░       ░         ░  ░   ░  ░   ░     
                                            ░                   ░                        ░                                       
 
-
-    """)
+""")
     print("Welcome to the Class Scheduler Application")
     print("Created by: Archisman Chakraborti")
     print("==========================================")
@@ -35,10 +35,17 @@ def print_welcome_message():
     print("1\tAlice\t1, 2")
     print("2\tBob\t1")
 
+def display_constraints():
+    constraints_file = os.path.join(os.path.dirname(__file__), '../constraints.md')
+    with open(constraints_file, 'r') as file:
+        constraints = file.read()
+    print(constraints)
+
 def main_menu():
     print("\nPlease select an option:")
     print("1. Enter data paths")
     print("2. Enter data manually")
+    print("3. View constraints")
     print("0. Exit")
     choice = input("Enter your choice: ")
     return choice
@@ -54,11 +61,13 @@ def main():
         elif choice == '2':
             courses, instructors, rooms, students = get_data_manually()
             break
+        elif choice == '3':
+            display_constraints()
         elif choice == '0':
             print("Exiting the application.")
             sys.exit()
         else:
-            print("Invalid choice. Please enter 1, 2, or 0.")
+            print("Invalid choice. Please enter 1, 2, 3, or 0.")
 
     # Print the data
     print("\nCourses:")
