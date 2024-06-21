@@ -1,5 +1,0 @@
-Flask
-flask 
-SQLAlchemy
-Flask-Migrate
-flask_restful
