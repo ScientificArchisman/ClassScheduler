@@ -1,23 +1,83 @@
 package main
 
+/*
+#include <stdlib.h>
+*/
 import "C"
 
 import (
     "bufio"
     "encoding/json"
     "fmt"
+    "log"
     "os"
+    "runtime"
     "strings"
+    "sync"
 
     "github.com/xuri/excelize/v2"
 )
 
+var logger = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+// Parallel data processing with goroutines
+func parallelProcess(files []string, processFunc func(string) ([]map[string]string, error)) ([]map[string]string, error) {
+    var wg sync.WaitGroup
+    results := make([]map[string]string, 0)
+    resultCh := make(chan []map[string]string, len(files))
+    errorCh := make(chan error, len(files))
+
+    for _, file := range files {
+        wg.Add(1)
+        go func(file string) {
+            defer wg.Done()
+            data, err := processFunc(file)
+            if err != nil {
+                errorCh <- err
+                return
+            }
+            resultCh <- data
+        }(file)
+    }
+
+    wg.Wait()
+    close(resultCh)
+    close(errorCh)
+
+    for result := range resultCh {
+        results = append(results, result...)
+    }
+
+    if len(errorCh) > 0 {
+        return nil, <-errorCh
+    }
+
+    return results, nil
+}
+
+// Exported function to read data from TXT files
 //export ReadDataFromTxt
 func ReadDataFromTxt(filePath *C.char) *C.char {
     goFilePath := C.GoString(filePath)
-    file, err := os.Open(goFilePath)
+    data, err := readDataFromTxt(goFilePath)
     if err != nil {
+        logger.Println("Error reading data from TXT:", err)
         return C.CString(fmt.Sprintf("error: %v", err))
+    }
+
+    jsonData, err := json.Marshal(data)
+    if err != nil {
+        logger.Println("Error marshalling data to JSON:", err)
+        return C.CString(fmt.Sprintf("error: %v", err))
+    }
+
+    return C.CString(string(jsonData))
+}
+
+func readDataFromTxt(filePath string) ([]map[string]string, error) {
+    file, err := os.Open(filePath)
+    if err != nil {
+        return nil, err
     }
     defer file.Close()
 
@@ -28,11 +88,11 @@ func ReadDataFromTxt(filePath *C.char) *C.char {
     }
 
     if err := scanner.Err(); err != nil {
-        return C.CString(fmt.Sprintf("error: %v", err))
+        return nil, err
     }
 
     if len(lines) == 0 {
-        return C.CString("error: file is empty")
+        return nil, fmt.Errorf("file is empty")
     }
 
     headers := strings.Split(lines[0], "\t")
@@ -44,7 +104,7 @@ func ReadDataFromTxt(filePath *C.char) *C.char {
         }
         values := strings.Split(line, "\t")
         if len(values) != len(headers) {
-            return C.CString(fmt.Sprintf("error: line %d does not match header length", i+2))
+            return nil, fmt.Errorf("line %d does not match header length", i+2)
         }
         entry := make(map[string]string)
         for j, header := range headers {
@@ -53,30 +113,42 @@ func ReadDataFromTxt(filePath *C.char) *C.char {
         data = append(data, entry)
     }
 
+    return data, nil
+}
+
+// Exported function to read data from Excel files
+//export ReadDataFromExcel
+func ReadDataFromExcel(filePath *C.char) *C.char {
+    goFilePath := C.GoString(filePath)
+    data, err := readDataFromExcel(goFilePath)
+    if err != nil {
+        logger.Println("Error reading data from Excel:", err)
+        return C.CString(fmt.Sprintf("error: %v", err))
+    }
+
     jsonData, err := json.Marshal(data)
     if err != nil {
+        logger.Println("Error marshalling data to JSON:", err)
         return C.CString(fmt.Sprintf("error: %v", err))
     }
 
     return C.CString(string(jsonData))
 }
 
-//export ReadDataFromExcel
-func ReadDataFromExcel(filePath *C.char) *C.char {
-    goFilePath := C.GoString(filePath)
-    f, err := excelize.OpenFile(goFilePath)
+func readDataFromExcel(filePath string) ([]map[string]string, error) {
+    f, err := excelize.OpenFile(filePath)
     if err != nil {
-        return C.CString(fmt.Sprintf("error: %v", err))
+        return nil, err
     }
     defer f.Close()
 
     rows, err := f.GetRows(f.GetSheetName(0))
     if err != nil {
-        return C.CString(fmt.Sprintf("error: %v", err))
+        return nil, err
     }
 
     if len(rows) == 0 {
-        return C.CString("error: file is empty")
+        return nil, fmt.Errorf("file is empty")
     }
 
     headers := rows[0]
@@ -87,7 +159,7 @@ func ReadDataFromExcel(filePath *C.char) *C.char {
             continue
         }
         if len(row) != len(headers) {
-            return C.CString(fmt.Sprintf("error: line %d does not match header length", i+2))
+            return nil, fmt.Errorf("line %d does not match header length", i+2)
         }
         entry := make(map[string]string)
         for j, header := range headers {
@@ -96,12 +168,10 @@ func ReadDataFromExcel(filePath *C.char) *C.char {
         data = append(data, entry)
     }
 
-    jsonData, err := json.Marshal(data)
-    if err != nil {
-        return C.CString(fmt.Sprintf("error: %v", err))
-    }
-
-    return C.CString(string(jsonData))
+    return data, nil
 }
 
-func main() {}
+func main() {
+    runtime.GOMAXPROCS(runtime.NumCPU())
+    logger.Println("Starting the Class Scheduler application....")
+}

@@ -19,6 +19,11 @@ typedef struct { const char *p; ptrdiff_t n; } _GoString_;
 /* Start of preamble from import "C" comments.  */
 
 
+#line 3 "scheduler.go"
+
+#include <stdlib.h>
+
+#line 1 "cgo-generated-wrapper"
 
 
 /* End of preamble from import "C" comments.  */
@@ -74,7 +79,11 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
+
+// Exported function to read data from TXT files
 extern char* ReadDataFromTxt(char* filePath);
+
+// Exported function to read data from Excel files
 extern char* ReadDataFromExcel(char* filePath);
 
 #ifdef __cplusplus
