@@ -173,5 +173,16 @@ func readDataFromExcel(filePath string) ([]map[string]string, error) {
 
 func main() {
     runtime.GOMAXPROCS(runtime.NumCPU())
-    logger.Println("Starting the Class Scheduler application....")
+    logger.Println("Starting the Class Scheduler application...")
+
+    // Example usage for parallel processing
+    files := []string{"courses.txt", "instructors.txt", "rooms.txt", "students.txt"}
+    data, err := parallelProcess(files, readDataFromTxt)
+    if err != nil {
+        log.Fatal("Error processing files:", err)
+    }
+
+    for _, entry := range data {
+        fmt.Println(entry)
+    }
 }

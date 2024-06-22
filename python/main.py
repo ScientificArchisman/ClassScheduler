@@ -13,8 +13,19 @@ def get_shared_lib_path():
     return os.path.join(base_path, 'class_scheduler.so')
 
 
+class TextColors:
+    HEADER = '\033[96m'
+    OKBLUE = '\033[90m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def print_welcome_message():
+    print(f"{TextColors.HEADER}{TextColors.BOLD}")
     print("""
   ▄████ ▓█████ ███▄    █▓█████▄▄▄█████▓ ██▓ ▄████▄       ██████ ▄████▄   ██░ ██ ▓█████ ▓█████▄  █    ██  ██▓    ▓█████  ██▀███  
  ██▒ ▀█▒▓█   ▀ ██ ▀█   █▓█   ▀▓  ██▒ ▓▒▓██▒▒██▀ ▀█     ▒██    ▒▒██▀ ▀█  ▓██░ ██▒▓█   ▀ ▒██▀ ██▌ ██  ▓██▒▓██▒    ▓█   ▀ ▓██ ▒ ██▒
@@ -27,24 +38,25 @@ def print_welcome_message():
       ░    ░  ░        ░   ░  ░         ░  ░ ░               ░ ░ ░       ░  ░  ░   ░  ░   ░       ░         ░  ░   ░  ░   ░     
                                            ░                   ░                        ░                                       
 
-""")
-    print("Welcome to the Class Scheduler Application")
-    print("Created by: Archisman Chakraborti")
-    print("==========================================")
+""")                                                                          
+    print(f"{TextColors.ENDC}")
+    print(f"{TextColors.OKGREEN}Welcome to the Class Scheduler Application{TextColors.ENDC}")
+    print(f"{TextColors.OKBLUE}Created by: Archisman Chakraborti{TextColors.ENDC}")
+    print(f"{TextColors.BOLD}{TextColors.UNDERLINE}=========================================={TextColors.ENDC}")
     print("This application schedules classes and exams based on provided data.")
     print("\nExample Data Formats:")
     print("\nCourses (id, name, duration, required_room):")
-    print("1\tMath 101\t3\tLecture Hall")
-    print("2\tChem 101\t2\tLab")
+    print(f"{TextColors.OKCYAN}1\tMath 101\t3\tLecture Hall{TextColors.ENDC}")
+    print(f"{TextColors.OKCYAN}2\tChem 101\t2\tLab{TextColors.ENDC}")
     print("\nInstructors (id, name, availability, preferred_slots, courses):")
-    print("1\tDr. Smith\tMon 9-11, Tue 1-3\tMon 9-11\t1")
-    print("2\tDr. Johnson\tMon 10-12, Wed 2-4\tWed 2-4\t2")
+    print(f"{TextColors.OKCYAN}1\tDr. Smith\tMon 9-11, Tue 1-3\tMon 9-11\t1{TextColors.ENDC}")
+    print(f"{TextColors.OKCYAN}2\tDr. Johnson\tMon 10-12, Wed 2-4\tWed 2-4\t2{TextColors.ENDC}")
     print("\nRooms (id, name, capacity, available_slots):")
-    print("1\tLecture Hall A\t100\tMon 9-11, Tue 1-3")
-    print("2\tLab B\t30\tMon 10-12, Wed 2-4")
+    print(f"{TextColors.OKCYAN}1\tLecture Hall A\t100\tMon 9-11, Tue 1-3{TextColors.ENDC}")
+    print(f"{TextColors.OKCYAN}2\tLab B\t30\tMon 10-12, Wed 2-4{TextColors.ENDC}")
     print("\nStudents (id, name, enrolled_courses):")
-    print("1\tAlice\t1, 2")
-    print("2\tBob\t1")
+    print(f"{TextColors.OKCYAN}1\tAlice\t1, 2{TextColors.ENDC}")
+    print(f"{TextColors.OKCYAN}2\tBob\t1{TextColors.ENDC}")
 
 def display_constraints():
     constraints_file = os.path.join(os.path.dirname(__file__), '../constraints.md')
@@ -66,7 +78,6 @@ def main():
 
     while True:
         choice = main_menu()
-        
         if choice == '1':
             courses, instructors, rooms, students = get_data_from_files()
             break
@@ -97,13 +108,6 @@ def main():
     print("\nStudents:")
     for student in students:
         print(student)
-
-    # Placeholder for scheduling logic
-    # schedule = create_schedule(courses, instructors, rooms, students)
-    # if check_constraints(schedule):
-    #     output_schedule(schedule)
-    # else:
-    #     print("Failed to generate a valid schedule.")
 
 if __name__ == "__main__":
     main()

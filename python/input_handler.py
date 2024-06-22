@@ -2,6 +2,7 @@ import os
 import json
 from cffi import FFI
 from validate import validate_data
+from data_structures import Course, Instructor, Room, Student
 import sys
 
 ffi = FFI()
@@ -16,13 +17,10 @@ def get_shared_lib_path():
         base_path = sys._MEIPASS
     else:
         # Running in a normal Python environment
-        base_path = os.path.abspath(os.path.dirname(__file__))
-    return os.path.join(base_path, 'class_scheduler.so')
+        base_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+    return os.path.join(base_path,  "class_scheduler_go", 'class_scheduler.so')
 
-# shared_lib_path = get_shared_lib_path()
-# C = ffi.dlopen(shared_lib_path)
-
-shared_lib_path = os.path.join(os.path.dirname(__file__), "../class_scheduler_go/class_scheduler.so")
+shared_lib_path = get_shared_lib_path()
 C = ffi.dlopen(shared_lib_path)
 
 def read_data_from_txt(file_path):
@@ -64,21 +62,21 @@ def get_data_from_files():
     required_room_fields = ['id', 'name', 'capacity', 'available_slots']
     required_student_fields = ['id', 'name', 'enrolled_courses']
 
-    courses = read_data(course_file, required_course_fields)
-    instructors = read_data(instructor_file, required_instructor_fields)
-    rooms = read_data(room_file, required_room_fields)
-    students = read_data(student_file, required_student_fields)
+    courses = [Course(**entry) for entry in read_data(course_file, required_course_fields)]
+    instructors = [Instructor(**entry) for entry in read_data(instructor_file, required_instructor_fields)]
+    rooms = [Room(**entry) for entry in read_data(room_file, required_room_fields)]
+    students = [Student(**entry) for entry in read_data(student_file, required_student_fields)]
 
     return courses, instructors, rooms, students
 
-def input_data_manually(required_fields):
+def input_data_manually(required_fields, cls):
     data = []
     print(f"Please enter data for the following fields: {', '.join(required_fields)}")
     while True:
         entry = {}
         for field in required_fields:
             entry[field] = input(f"Enter {field}: ")
-        data.append(entry)
+        data.append(cls(**entry))
         cont = input("Do you want to add another entry? (yes/no): ")
         if cont.lower() != 'yes':
             break
@@ -91,12 +89,12 @@ def get_data_manually():
     required_student_fields = ['id', 'name', 'enrolled_courses']
 
     print("Enter course data:")
-    courses = input_data_manually(required_course_fields)
+    courses = input_data_manually(required_course_fields, Course)
     print("Enter instructor data:")
-    instructors = input_data_manually(required_instructor_fields)
+    instructors = input_data_manually(required_instructor_fields, Instructor)
     print("Enter room data:")
-    rooms = input_data_manually(required_room_fields)
+    rooms = input_data_manually(required_room_fields, Room)
     print("Enter student data:")
-    students = input_data_manually(required_student_fields)
+    students = input_data_manually(required_student_fields, Student)
 
     return courses, instructors, rooms, students
