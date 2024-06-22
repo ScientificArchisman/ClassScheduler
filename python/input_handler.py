@@ -2,12 +2,25 @@ import os
 import json
 from cffi import FFI
 from validate import validate_data
+import sys
 
 ffi = FFI()
 ffi.cdef("""
 char* ReadDataFromTxt(const char* filePath);
 char* ReadDataFromExcel(const char* filePath);
 """)
+
+def get_shared_lib_path():
+    if getattr(sys, 'frozen', False):
+        # Running in a bundle
+        base_path = sys._MEIPASS
+    else:
+        # Running in a normal Python environment
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, 'class_scheduler.so')
+
+# shared_lib_path = get_shared_lib_path()
+# C = ffi.dlopen(shared_lib_path)
 
 shared_lib_path = os.path.join(os.path.dirname(__file__), "../class_scheduler_go/class_scheduler.so")
 C = ffi.dlopen(shared_lib_path)

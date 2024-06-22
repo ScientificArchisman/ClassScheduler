@@ -3,6 +3,17 @@ import sys
 from input_handler import get_data_from_files, get_data_manually
 from schedule import create_schedule, check_constraints, output_schedule
 
+def get_shared_lib_path():
+    if getattr(sys, 'frozen', False):
+        # Running in a bundle
+        base_path = sys._MEIPASS
+    else:
+        # Running in a normal Python environment
+        base_path = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base_path, 'class_scheduler.so')
+
+
+
 def print_welcome_message():
     print("""
   ▄████ ▓█████ ███▄    █▓█████▄▄▄█████▓ ██▓ ▄████▄       ██████ ▄████▄   ██░ ██ ▓█████ ▓█████▄  █    ██  ██▓    ▓█████  ██▀███  
@@ -55,6 +66,7 @@ def main():
 
     while True:
         choice = main_menu()
+        
         if choice == '1':
             courses, instructors, rooms, students = get_data_from_files()
             break
