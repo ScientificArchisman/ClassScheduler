@@ -18,7 +18,7 @@ def get_shared_lib_path():
     else:
         # Running in a normal Python environment
         base_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-    return os.path.join(base_path,  "class_scheduler_go", 'class_scheduler.so')
+    return os.path.join(base_path, "class_scheduler_go", 'class_scheduler.so')
 
 shared_lib_path = get_shared_lib_path()
 C = ffi.dlopen(shared_lib_path)
@@ -57,7 +57,7 @@ def get_data_from_files():
     room_file = input("Enter path for rooms file: ")
     student_file = input("Enter path for students file: ")
 
-    required_course_fields = ['id', 'name', 'duration', 'required_room']
+    required_course_fields = ['id', 'name', 'duration', 'required_room', 'enrolled_students']
     required_instructor_fields = ['id', 'name', 'availability', 'preferred_slots', 'courses']
     required_room_fields = ['id', 'name', 'capacity', 'available_slots']
     required_student_fields = ['id', 'name', 'enrolled_courses']
@@ -83,7 +83,7 @@ def input_data_manually(required_fields, cls):
     return data
 
 def get_data_manually():
-    required_course_fields = ['id', 'name', 'duration', 'required_room']
+    required_course_fields = ['id', 'name', 'duration', 'required_room', 'enrolled_students']
     required_instructor_fields = ['id', 'name', 'availability', 'preferred_slots', 'courses']
     required_room_fields = ['id', 'name', 'capacity', 'available_slots']
     required_student_fields = ['id', 'name', 'enrolled_courses']
