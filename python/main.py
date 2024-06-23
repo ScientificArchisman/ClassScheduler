@@ -2,7 +2,7 @@ import os
 import sys
 from input_handler import get_data_from_files, get_data_manually
 from data_structures import Course, Instructor, Room, Student
-from chromosome_generator import generate_chromosome, chromosome_to_json, Gene
+from components.chromosome_generator import generate_chromosome, chromosome_to_json, Gene
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')

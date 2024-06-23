@@ -1,6 +1,12 @@
 import json
 from chromosome_generator import generate_chromosome, Gene
+import sys
+import os
+# Add the parent directory to sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
 from data_structures import Course, Instructor, Room
+
 
 def generate_population(population_size, courses, instructors, rooms):
     return [generate_chromosome(courses, instructors, rooms) for _ in range(population_size)]
@@ -24,6 +30,7 @@ def chromosome_to_json(chromosome):
 
 def population_to_json(population):
     return json.dumps([json.loads(chromosome_to_json(chromosome)) for chromosome in population], indent=4)
+
 
 # Example usage (for testing only)
 if __name__ == "__main__":
